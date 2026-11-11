@@ -4,7 +4,7 @@ name = "弹幕猫娘"
 description = "把宿主聊天搬到游戏/窗口：主人说话与 YUI 回应以弹幕飘过目标画面（OBS 式选窗口/显示器），鼠标穿透、样式可配、随聊天时间自然滚动。"
 short_description = "Host chat as on-screen danmaku overlay."
 keywords = ["弹幕", "danmaku", "浮层", "overlay", "聊天", "游戏", "聊天框", "悬浮", "直播", "barrage"]
-version = "0.2.0"
+version = "0.2.1"
 entry = "plugin.plugins.neko_danmaku:NekoDanmakuPlugin"
 
 [plugin.author]

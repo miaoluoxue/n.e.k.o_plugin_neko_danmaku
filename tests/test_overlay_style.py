@@ -6,7 +6,14 @@ import os
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
+
+pytestmark = pytest.mark.skipif(
+    sys.platform != "win32",
+    reason="The bundled PySide6/Qt runtime and overlay window are Windows-only.",
+)
 
 
 def _load_overlay_module():

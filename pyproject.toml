@@ -1,6 +1,6 @@
 [project]
 name = "neko_danmaku"
-version = "0.2.0"
+version = "0.2.1"
 description = "Host chat as on-screen danmaku overlay (Qt + vendor PySide6)."
 requires-python = ">=3.11"
 license = "Apache-2.0"
