@@ -203,6 +203,34 @@ def test_time_index_missing_db():
     src.close()
 
 
+def test_time_index_connection_is_explicitly_read_only(monkeypatch):
+    """兼容索引必须使用 SQLite URI mode=ro，不能给宿主数据库任何写机会。"""
+    calls = []
+
+    class _FakeConnection:
+        row_factory = None
+
+        def close(self):
+            pass
+
+    fake_connection = _FakeConnection()
+
+    def fake_connect(database, *, uri=False, timeout=0):
+        calls.append((database, uri, timeout))
+        return fake_connection
+
+    monkeypatch.setattr(_time_index.sqlite3, "connect", fake_connect)
+    src = TimeIndexSource("/tmp/host/time_indexed.db")
+
+    assert src._conn() is fake_connection
+    assert calls == [(
+        "file:/tmp/host/time_indexed.db?mode=ro",
+        True,
+        2.0,
+    )]
+    src.close()
+
+
 # ---- sdk_bus (宿主 conversations 通道) ----
 _sdk_bus = _load("sdk_bus", os.path.join(_SRC, "sdk_bus.py"))
 SdkBusSource = _sdk_bus.SdkBusSource
