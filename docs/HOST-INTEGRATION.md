@@ -55,3 +55,26 @@
 - 删除 `state/bridge_cursor.json` 重置增量游标；
 - 浮层随插件 shutdown 退出，不常驻独立进程。
 
+## 完整权限清单
+
+下表 ID 是本插件的审计标签，不是当前 `plugin.toml` 已有的正式权限字段。
+
+| 审计 ID | 权限 | 实际 API/资源 | 降级 |
+|---|---|---|---|
+| `HOST_LIFECYCLE` | 生命周期与配置热更新 | `@lifecycle startup/shutdown/config_change` | 浮层和桥停止 |
+| `HOST_ENTRY` | 面板操作 | `@plugin_entry`、静态 UI | 只保留已有浮层 |
+| `HOST_CONVERSATION_BUS` | 对话回合读取 | `ctx.bus.conversations.get(since_ts=...)` | 回退兼容文件源 |
+| `HOST_MEMORY_DB_READ` | 宿主时间索引只读 | `memory/<角色>/time_indexed.db` 的 `SELECT` | 找不到时桥停用 |
+| `HOST_RECENT_FILE_READ` | 宿主最近对话读取 | `recent.json` | 找不到时桥停用 |
+| `HOST_DATA_PATH` | 插件私有状态 | `plugin.data_path()` | 旧目录兼容 |
+| `FS_PLUGIN_STATE_RW` | 状态/样式游标 | `config/overlay_style.json`、`state/bridge_cursor.json` | 丢失时从当前尾部开始 |
+| `UI_QT_OVERLAY` | 桌面浮层 | 随包 PySide6、Qt 事件循环 | 缺少运行时则浮层不可用 |
+| `WIN_WINDOW_ENUM` | 目标窗口枚举 | Win32 窗口句柄、标题、进程信息 | 无法选择时仅显示器模式 |
+| `NET_LOOPBACK_HTTP` | 插件到浮层通信 | `127.0.0.1:<overlay_port>` | 端口占用时启动失败 |
+
+明确**不使用**：`push_message` 生成新台词、宿主记忆写操作、游戏 Hook、代理 DLL、
+键鼠输入、游戏内存读取、远程服务器上传。
+
+红线审计：不写宿主记忆库、不修改对话记录；两个旧数据源均只读。SQLite 连接目前
+仍应进一步改为显式 `mode=ro`，这是后续安全加固项。
+
